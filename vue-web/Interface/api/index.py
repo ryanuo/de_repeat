@@ -1,16 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# @File  : a.py
-# @Author: Harry
-# @Date  : 31/3/2022
-# @Desc  :
 import re
 import requests
 import execjs
-from http.server import  BaseHTTPRequestHandler
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 import urllib
-
 
 class TranSlate:
     def __init__(self, query, mode='simple'):
@@ -87,16 +80,10 @@ class TranSlate:
 
 # 配置接口
 class handler(BaseHTTPRequestHandler):
-    def _send_cors_headers(self):
-        """ Sets headers required for CORS """
-        self.send_header('Content-type', 'application/json')
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "*")
-        self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type")
-
     def do_GET(self):
         self.send_response(200)
-        self._send_cors_headers()
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Content-type', 'application/json')
         self.end_headers()
         if '?' not in self.path:  # 如果带有参数
             self.wfile.write(json.dumps({'msg': '参数有误'}).encode('utf-8'))
@@ -110,4 +97,4 @@ class handler(BaseHTTPRequestHandler):
             data = TranSlate(query, mode).setFromTo()
             self.wfile.write(
                 json.dumps({'msg': '查询成功', 'status_code': 1, 'data': data}, ensure_ascii=False).encode('utf-8'))
-        return
+            return
