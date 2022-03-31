@@ -3,15 +3,28 @@
  * @Date: 2022-03-30 18:40:11
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-03-31 15:04:51
+ * @LastEditTime: 2022-03-31 22:06:49
  * @FilePath: \vue-web\src\views\HomeView.vue
 -->
 <template>
-  <div class="input-wrap">
-    <el-input v-model="inputWord" :rows="7" type="textarea" placeholder="Please input" />
-    <el-input v-model="endResult" :rows="7" type="textarea" placeholder disabled />
+  <div>
+    <el-radio v-model="mode" label="simple" border>简单</el-radio>
+    <el-radio v-model="mode" label="middle" border>中等(推荐)</el-radio>
+    <el-radio v-model="mode" label="high" border>高级</el-radio>
   </div>
-  <el-button @click="starSwitch">开始翻译</el-button>
+  <div class="input-wrap">
+    <div class="close-">
+      <el-input v-model="inputWord" :rows="7" type="textarea" placeholder="Please input" />
+      <CloseSvg v-show="inputWord.length !== 0" @click="closeCon" />
+    </div>
+    <div class="copy-">
+      <el-input v-model="endResult" :rows="7" type="textarea" placeholder disabled />
+      <div v-show="endResult.length !== 0" @click="onCopy">
+        <copysvg-view />
+      </div>
+    </div>
+  </div>
+  <div class="startS" @click="starSwitch">开始翻译</div>
   <el-dialog v-model="isLoginedVisible" :title="lwTitle" width="30%" :before-close="handleClose">
     <div class="remind-w">
       <remind-view />
@@ -39,32 +52,41 @@
           </el-icon>
         </template>
       </el-input>
-      <div class="btn-wrap">
-        <el-button color="#626aef" style="color: white">登录</el-button>
-      </div>
+    </div>
+    <div class="btn-wrap">
+      <el-button color="#626aef" style="color: white" @click="submitForm">登录</el-button>
     </div>
   </el-dialog>
 </template>
 
 <script>
-import { reactive, toRefs, defineAsyncComponent } from 'vue'
+import { reactive, toRefs, defineAsyncComponent, onMounted } from 'vue'
+import { debounceMerge } from '@/utils/api/function'
+import useClipboard from 'vue-clipboard3'
 import md5 from 'js-md5'
 import { Jsonp } from '@/http'
 import { UserFilled, Key } from '@element-plus/icons-vue'
 import NProgress from 'nprogress'
+import { ElMessage } from 'element-plus'
 const RemindView = defineAsyncComponent(() => import('@/views/RemindView.vue'))
+const CopysvgView = defineAsyncComponent(() => import('@/views/svg/CopysvgView.vue'))
+const CloseSvg = defineAsyncComponent(() => import('@/views/svg/CloseSvg.vue'))
 export default {
   components: {
-    RemindView, UserFilled, Key
+    RemindView,
+    UserFilled,
+    Key,
+    CopysvgView,
+    CloseSvg
   },
   setup() {
+    const { toClipboard } = useClipboard()
     const state = reactive({
-      isLoginedVisible: true,
+      isLoginedVisible: false,
       lwTitle: '论文降重小工具',
       appid: '',
       secret: '',
       inputWord: '论文降重小工具',
-      tabRouter: 'free',
       tempResult: '',
       endResult: '',
       transList: {
@@ -82,9 +104,8 @@ export default {
           'est zh'
         ]
       },
-      mode: 'simple'
+      mode: 'middle'
     })
-
     // 生成Api参数
     const createApiParams = function (q, from, to) {
       const url = '//api.fanyi.baidu.com/api/trans/vip/translate'
@@ -124,16 +145,65 @@ export default {
       })()
     }
     // 开始翻译
-    const starSwitch = function () {
+    const starSwitch = debounceMerge(function () {
       NProgress.start()
       queen(state.inputWord)
-    }
+    }, 500, true)
 
+    // 点击复制
+    const onCopy = debounceMerge(function () {
+      toClipboard(state.endResult)
+      console.log(1)
+    }, 500, true)
+    // 登录
+    const submitForm = function () {
+      if (state.appid.length > 0 && state.secret.length > 0) {
+        localStorage.setItem('token', JSON.stringify({
+          appid: state.appid,
+          secret: state.secret
+        }))
+        ElMessage({
+          message: '填写成功，已保存到本地缓冲中',
+          type: 'success'
+        })
+        state.isLoginedVisible = !state.isLoginedVisible
+      } else {
+        ElMessage({
+          message: 'appid，serset不能为空！！',
+          type: 'error'
+        })
+      }
+    }
+    // 清空内容
+    const closeCon = function () {
+      state.inputWord = ''
+      state.endResult = ''
+      state.tempResult = ''
+    }
+    onMounted(() => {
+      const token = localStorage.getItem('token')
+      console.log(token)
+      if (token) {
+        const a = JSON.parse(token)
+        state.appid = a.appid
+        state.secret = a.secret
+        state.isLoginedVisible = false
+        ElMessage({
+          message: '已登录请放心使用,如有问题联系下方管理员',
+          type: 'success'
+        })
+      } else {
+        state.isLoginedVisible = true
+      }
+    })
     return {
       ...toRefs(state),
       createApiParams,
       translate,
+      submitForm,
       queen,
+      onCopy,
+      closeCon,
       starSwitch
     }
   }
@@ -144,7 +214,8 @@ export default {
 // 密码输入框
 .appid-input,
 .secret-input {
-  margin: 40px 20px;
+  margin: 20px 40px;
+  // width: 100%;
 }
 
 .btn-wrap {
