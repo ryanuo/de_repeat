@@ -3,11 +3,16 @@
  * @Date: 2022-03-31 11:30:09
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-03-31 15:21:17
+ * @LastEditTime: 2022-03-31 15:52:55
  * @FilePath: \vue-web\src\views\FreeView.vue
 -->
 <template>
   <div class>
+    <div>
+      <el-radio v-model="mode" label="simple" size="large" border>简单</el-radio>
+      <el-radio v-model="mode" label="middle" size="large" border>中等</el-radio>
+      <el-radio v-model="mode" label="high" size="large" border>高级</el-radio>
+    </div>
     <div class="input-wrap">
       <el-input v-model="inputWord" :rows="7" type="textarea" placeholder="Please input" />
       <el-input v-model="endResult" :rows="7" type="textarea" placeholder disabled />
