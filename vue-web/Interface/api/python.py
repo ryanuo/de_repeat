@@ -48,11 +48,11 @@ class TranSlate:
         return execjs.compile(js)
 
     def translate(self, query, fromF, toF):
-        get_sign = self.make_execjs_object()
+        # get_sign = self.make_execjs_object()
         token, gtk = self.get_token_gtk()
         while True:
-            sign = get_sign.call('e', query, gtk)
-            if sign:
+            sign = requests.get(f'https://de-repeat.vercel.app/api/js?query={query}&gtk={gtk}').json()
+            if sign['sign']:
                 break
         url = f"https://fanyi.baidu.com/v2transapi?from={fromF}&to={toF}"
         form_data = {
