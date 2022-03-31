@@ -3,7 +3,7 @@
  * @Date: 2022-03-31 11:30:09
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-03-31 15:08:22
+ * @LastEditTime: 2022-03-31 15:21:17
  * @FilePath: \vue-web\src\views\FreeView.vue
 -->
 <template>
@@ -30,7 +30,7 @@ export default {
     // 获取数据
     const getResult = async function () {
       NProgress.start()
-      const { data: res } = await axios.get('https://de-repeat.vercel.app/', {
+      const { data: res } = await axios.get('https://de-repeat.vercel.app/api', {
         params: {
           query: state.inputWord,
           mode: state.mode

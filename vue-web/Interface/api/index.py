@@ -1,4 +1,4 @@
-import re
+import re,os
 import requests
 import execjs
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -40,7 +40,9 @@ class TranSlate:
         return token, gtk
 
     def make_execjs_object(self):
-        with open("sign.js", 'r') as f:
+        file_ = os.getcwd() + '/sign.js'
+        print(file_)
+        with open(file_, 'r') as f:
             js = f.read()
         return execjs.compile(js)
 
