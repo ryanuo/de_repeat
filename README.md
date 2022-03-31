@@ -4,8 +4,8 @@
  * @Date: 2021-09-20 19:04:53
  * @Url: https://u.mr90.top
  * @github: https://github.com/rr210
- * @LastEditTime: 2021-09-20 19:04:53
- * @LastEditors: Harry
+ * @LastEditTime: 2022-03-30 18:04:46
+ * @LastEditors: harry
 -->
 
 # 文章降重助手
@@ -30,7 +30,8 @@
 
 1. 克隆项目
 2. 注册百度翻译api, 获取appid和秘钥, [百度翻译api注册连接](https://api.fanyi.baidu.com/api/trans/product/apichoose)
-3. 打开项目index.html 填入appid和秘钥
+3. 开通通用型翻译，打开降重网页
+4. 打开[降重网页](https://m.mr90.top) 填入appid和秘钥
 
 ## exe版本地址
 

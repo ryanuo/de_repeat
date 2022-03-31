@@ -78,6 +78,7 @@ function queen(str) {
         for (let i = 0; i < transList[mode].length; i++) {
             var lang = transList[mode][i].split(" ");
             res = await translate(dst, lang[0], lang[1]);
+            console.log(res);
             dst = res.trans_result[0].dst;
             log("result", dst);
         }
