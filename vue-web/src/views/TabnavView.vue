@@ -3,7 +3,7 @@
  * @Date: 2022-03-31 11:54:44
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-03-31 21:40:40
+ * @LastEditTime: 2022-04-01 14:17:43
  * @FilePath: \vue-web\src\views\TabnavView.vue
 -->
 <template>
@@ -13,10 +13,10 @@
       <el-radio-button label="home" size="large">注册版(推荐)</el-radio-button>
     </el-radio-group>
     <router-view />
-    <!-- <footer>
-    Copyright © 2020-2021
-    <a href="https://u.mr90.top" target="_blank">Harry</a>. All rights reserved.
-    </footer>-->
+    <footer class="footer-wrap">
+      Copyright © 2019-{{ currentYear }}
+      <a href="https://u.mr90.top" target="_blank">Harry</a>. All rights reserved.
+    </footer>
   </div>
 </template>
 
@@ -29,11 +29,13 @@ export default {
     const router = useRouter()
     const route = useRoute()
     const state = reactive({
-      tabRouter: 'free'
+      tabRouter: 'free',
+      currentYear: new Date().getFullYear()
     })
     const tabRouterChange = function (name) {
       if (state.tabRouter === name) {
         console.log(1)
+        console.log(router)
         router.replace({
           name
         })
@@ -47,4 +49,11 @@ export default {
 }
 </script>
 <style lang='less' scoped>
+.footer-wrap {
+  position: absolute;
+  bottom: 30px;
+  text-align: center;
+  transform: translateX(-50%);
+  left: 50%;
+}
 </style>

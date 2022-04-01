@@ -1,0 +1,18 @@
+{
+  "name": "de_repeat",
+  "version": "1.0.0",
+  "description": "<!--\r  * @Description: \r  * @Author: Harry\r  * @Date: 2021-09-20 19:04:53\r  * @Url: https://u.mr90.top\r  * @github: https://github.com/rr210\r  * @LastEditTime: 2022-03-30 18:04:46\r  * @LastEditors: harry\r -->",
+  "main": "index.js",
+  "scripts": {
+    "deploy":"gh-pages -d vue-web/dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@b.github.com:rr210/de_repeat.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "gh-pages": "^3.2.3"
+  }
+}

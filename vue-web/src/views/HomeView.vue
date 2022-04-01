@@ -3,64 +3,75 @@
  * @Date: 2022-03-30 18:40:11
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-03-31 22:06:49
+ * @LastEditTime: 2022-04-01 14:12:22
  * @FilePath: \vue-web\src\views\HomeView.vue
 -->
 <template>
-  <div>
-    <el-radio v-model="mode" label="simple" border>简单</el-radio>
-    <el-radio v-model="mode" label="middle" border>中等(推荐)</el-radio>
-    <el-radio v-model="mode" label="high" border>高级</el-radio>
-  </div>
-  <div class="input-wrap">
-    <div class="close-">
-      <el-input v-model="inputWord" :rows="7" type="textarea" placeholder="Please input" />
-      <CloseSvg v-show="inputWord.length !== 0" @click="closeCon" />
+  <div :ref="homeRef" class="home-wrap">
+    <div>
+      <el-radio v-model="mode" label="simple" border>简单</el-radio>
+      <el-radio v-model="mode" label="middle" border>中等(推荐)</el-radio>
+      <el-radio v-model="mode" label="high" border>高级</el-radio>
     </div>
-    <div class="copy-">
-      <el-input v-model="endResult" :rows="7" type="textarea" placeholder disabled />
-      <div v-show="endResult.length !== 0" @click="onCopy">
-        <copysvg-view />
+    <div class="input-wrap">
+      <div class="close- c1">
+        <el-input v-model="inputWord" :rows="7" type="textarea" placeholder="Please input" />
+        <CloseSvg v-show="inputWord.length !== 0" @click="closeCon" />
+      </div>
+      <div class="copy- c1">
+        <el-input v-model="endResult" :rows="7" type="textarea" placeholder disabled />
+        <div v-show="endResult.length !== 0" @click="onCopy">
+          <copysvg-view />
+        </div>
       </div>
     </div>
+    <div class="startS" @click="starSwitch">开始翻译</div>
+    <el-dialog
+      v-model="isLoginedVisible"
+      :title="lwTitle"
+      :width="PageWidth"
+      :before-close="handleClose"
+    >
+      <div class="remind-w">
+        <remind-view @click="remindClick" />
+      </div>
+      <div class="appid-input">
+        <el-input v-model="appid" clearable class="w-50 m-2" placeholder="请填写appid,获取方式点击感叹号">
+          <template #prefix>
+            <el-icon class="el-input__icon">
+              <user-filled />
+            </el-icon>
+          </template>
+        </el-input>
+      </div>
+      <div class="secret-input">
+        <el-input
+          v-model="secret"
+          clearable
+          type="password"
+          class="w-50 m-2"
+          placeholder="请填写secret,获取方式点击感叹号"
+        >
+          <template #prefix>
+            <el-icon class="el-input__icon">
+              <Key />
+            </el-icon>
+          </template>
+        </el-input>
+      </div>
+      <div class="btn-wrap">
+        <el-button color="#626aef" style="color: white" @click="submitForm">登录</el-button>
+      </div>
+    </el-dialog>
+    <div class="lay-out">
+      <layout-svg v-if="token" @click="LayOut" />
+      <SigninSvg v-else @click="isLoginedVisible = true" />
+    </div>
   </div>
-  <div class="startS" @click="starSwitch">开始翻译</div>
-  <el-dialog v-model="isLoginedVisible" :title="lwTitle" width="30%" :before-close="handleClose">
-    <div class="remind-w">
-      <remind-view />
-    </div>
-    <div class="appid-input">
-      <el-input v-model="appid" clearable class="w-50 m-2" placeholder="请填写appid,获取方式点击感叹号">
-        <template #prefix>
-          <el-icon class="el-input__icon">
-            <user-filled />
-          </el-icon>
-        </template>
-      </el-input>
-    </div>
-    <div class="secret-input">
-      <el-input
-        v-model="secret"
-        clearable
-        type="password"
-        class="w-50 m-2"
-        placeholder="请填写secret,获取方式点击感叹号"
-      >
-        <template #prefix>
-          <el-icon class="el-input__icon">
-            <Key />
-          </el-icon>
-        </template>
-      </el-input>
-    </div>
-    <div class="btn-wrap">
-      <el-button color="#626aef" style="color: white" @click="submitForm">登录</el-button>
-    </div>
-  </el-dialog>
 </template>
 
 <script>
-import { reactive, toRefs, defineAsyncComponent, onMounted } from 'vue'
+import { reactive, toRefs, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
 import { debounceMerge } from '@/utils/api/function'
 import useClipboard from 'vue-clipboard3'
 import md5 from 'js-md5'
@@ -71,22 +82,26 @@ import { ElMessage } from 'element-plus'
 const RemindView = defineAsyncComponent(() => import('@/views/RemindView.vue'))
 const CopysvgView = defineAsyncComponent(() => import('@/views/svg/CopysvgView.vue'))
 const CloseSvg = defineAsyncComponent(() => import('@/views/svg/CloseSvg.vue'))
+const LayoutSvg = defineAsyncComponent(() => import('@/views/svg/LayoutSvg.vue'))
+const SigninSvg = defineAsyncComponent(() => import('@/views/svg/SigninSvg.vue'))
 export default {
   components: {
     RemindView,
     UserFilled,
     Key,
     CopysvgView,
-    CloseSvg
+    CloseSvg,
+    LayoutSvg,
+    SigninSvg
   },
-  setup() {
+  setup(props, context) {
     const { toClipboard } = useClipboard()
     const state = reactive({
       isLoginedVisible: false,
       lwTitle: '论文降重小工具',
       appid: '',
       secret: '',
-      inputWord: '论文降重小工具',
+      inputWord: '',
       tempResult: '',
       endResult: '',
       transList: {
@@ -104,7 +119,9 @@ export default {
           'est zh'
         ]
       },
-      mode: 'middle'
+      mode: 'middle',
+      PageWidth: '30%',
+      token: false
     })
     // 生成Api参数
     const createApiParams = function (q, from, to) {
@@ -122,6 +139,7 @@ export default {
       data.sign = md5(state.appid + q + data.salt + state.secret)
       return { url, data }
     }
+
     // 翻译
     const translate = async function (q, from, to) {
       const params = createApiParams(q, from, to)
@@ -146,8 +164,21 @@ export default {
     }
     // 开始翻译
     const starSwitch = debounceMerge(function () {
-      NProgress.start()
-      queen(state.inputWord)
+      const token = localStorage.getItem('token')
+      if (!state.inputWord) {
+        ElMessage({
+          message: '您还未输入内容！！！',
+          type: 'error'
+        })
+      } else if (!token) {
+        ElMessage({
+          message: '您还未登录！！！',
+          type: 'error'
+        })
+      } else {
+        NProgress.start()
+        queen(state.inputWord)
+      }
     }, 500, true)
 
     // 点击复制
@@ -158,15 +189,17 @@ export default {
     // 登录
     const submitForm = function () {
       if (state.appid.length > 0 && state.secret.length > 0) {
-        localStorage.setItem('token', JSON.stringify({
+        const data = JSON.stringify({
           appid: state.appid,
           secret: state.secret
-        }))
+        })
+        localStorage.setItem('token', data)
         ElMessage({
           message: '填写成功，已保存到本地缓冲中',
           type: 'success'
         })
         state.isLoginedVisible = !state.isLoginedVisible
+        state.token = true
       } else {
         ElMessage({
           message: 'appid，serset不能为空！！',
@@ -180,6 +213,33 @@ export default {
       state.endResult = ''
       state.tempResult = ''
     }
+    // 判断页面的状态
+    const judgeWidth = function () {
+      const W = document.body.offsetWidth
+      if (W <= 440) {
+        state.PageWidth = '80%'
+      } else if (W > 414 && W < 900) {
+        state.PageWidth = '60%'
+      } else {
+        state.PageWidth = '30%'
+      }
+      console.log(W)
+    }
+    // 退出登录
+    const LayOut = function () {
+      localStorage.clear()
+      const token = localStorage.getItem('token')
+      if (!token) {
+        state.appid = ''
+        state.secret = ''
+        state.token = ''
+        state.isLoginedVisible = true
+        ElMessage({
+          message: '您已退出,本地缓冲信息已清除',
+          type: 'success'
+        })
+      }
+    }
     onMounted(() => {
       const token = localStorage.getItem('token')
       console.log(token)
@@ -188,6 +248,7 @@ export default {
         state.appid = a.appid
         state.secret = a.secret
         state.isLoginedVisible = false
+        state.token = true
         ElMessage({
           message: '已登录请放心使用,如有问题联系下方管理员',
           type: 'success'
@@ -195,16 +256,27 @@ export default {
       } else {
         state.isLoginedVisible = true
       }
+      judgeWidth()
+      window.addEventListener('resize', debounceMerge(judgeWidth, 300, true))
     })
+    onUnmounted(() => {
+      window.removeEventListener('resize', debounceMerge(judgeWidth, 300, true))
+    })
+    const remindClick = function () {
+      location.href = 'https://api.fanyi.baidu.com/api/trans/product/apichoose'
+    }
     return {
       ...toRefs(state),
       createApiParams,
       translate,
+      remindClick,
       submitForm,
       queen,
+      judgeWidth,
       onCopy,
       closeCon,
-      starSwitch
+      starSwitch,
+      LayOut
     }
   }
 }
@@ -233,5 +305,9 @@ export default {
   height: 30px;
   animation: tada 1s linear infinite;
   cursor: pointer;
+}
+.home-wrap {
+  width: 100%;
+  height: 100%;
 }
 </style>
