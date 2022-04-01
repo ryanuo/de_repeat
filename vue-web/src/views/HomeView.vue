@@ -3,7 +3,7 @@
  * @Date: 2022-03-30 18:40:11
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-04-01 14:12:22
+ * @LastEditTime: 2022-04-01 14:37:56
  * @FilePath: \vue-web\src\views\HomeView.vue
 -->
 <template>
@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-    <div class="startS" @click="starSwitch">开始翻译</div>
+    <div class="startS" @click="starSwitch">开始转换</div>
     <el-dialog
       v-model="isLoginedVisible"
       :title="lwTitle"
@@ -78,7 +78,7 @@ import md5 from 'js-md5'
 import { Jsonp } from '@/http'
 import { UserFilled, Key } from '@element-plus/icons-vue'
 import NProgress from 'nprogress'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 const RemindView = defineAsyncComponent(() => import('@/views/RemindView.vue'))
 const CopysvgView = defineAsyncComponent(() => import('@/views/svg/CopysvgView.vue'))
 const CloseSvg = defineAsyncComponent(() => import('@/views/svg/CloseSvg.vue'))
@@ -166,13 +166,17 @@ export default {
     const starSwitch = debounceMerge(function () {
       const token = localStorage.getItem('token')
       if (!state.inputWord) {
-        ElMessage({
-          message: '您还未输入内容！！！',
+        ElNotification({
+          title: '提示',
+          position: 'bottom-right',
+          message: '你还未填写内容请填写后点击',
           type: 'error'
         })
       } else if (!token) {
-        ElMessage({
-          message: '您还未登录！！！',
+        ElNotification({
+          title: '提示',
+          position: 'bottom-right',
+          message: '您还未登录',
           type: 'error'
         })
       } else {
@@ -249,7 +253,9 @@ export default {
         state.secret = a.secret
         state.isLoginedVisible = false
         state.token = true
-        ElMessage({
+        ElNotification({
+          title: '提示',
+          position: 'bottom-right',
           message: '已登录请放心使用,如有问题联系下方管理员',
           type: 'success'
         })

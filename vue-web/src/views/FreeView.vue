@@ -3,7 +3,7 @@
  * @Date: 2022-03-31 11:30:09
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-03-31 22:05:02
+ * @LastEditTime: 2022-04-01 15:04:21
  * @FilePath: \vue-web\src\views\FreeView.vue
 -->
 <template>
@@ -14,8 +14,11 @@
       <el-radio v-model="mode" label="high" border>高级</el-radio>
     </div>
     <div class="input-wrap">
-      <el-input v-model="inputWord" :rows="7" type="textarea" placeholder="Please input" />
-      <div class="copy-">
+      <div class="close- c1">
+        <el-input v-model="inputWord" :rows="7" type="textarea" placeholder="Please input" />
+        <CloseSvg v-show="inputWord.length !== 0" @click="closeCon" />
+      </div>
+      <div class="copy- c1">
         <el-input v-model="endResult" :rows="7" type="textarea" placeholder disabled />
         <copysvg-view v-show="endResult.length !== 0" />
       </div>
@@ -27,12 +30,13 @@
 <script>
 import { reactive, toRefs, defineAsyncComponent } from 'vue'
 import NProgress from 'nprogress'
-import axios from 'axios'
+import axios from '@/utils/http'
 import { ElMessage, ElNotification } from 'element-plus'
+import { debounceMerge } from '@/utils/api/function'
 const CopysvgView = defineAsyncComponent(() => import('@/views/svg/CopysvgView.vue'))
-
+const CloseSvg = defineAsyncComponent(() => import('@/views/svg/CloseSvg.vue'))
 export default {
-  components: { CopysvgView },
+  components: { CopysvgView, CloseSvg },
   setup() {
     const state = reactive({
       inputWord: '',
@@ -42,7 +46,7 @@ export default {
     })
     // 获取数据
     // 判断是否有内容
-    const judgeContent = () => {
+    const judgeContent = debounceMerge(() => {
       if (state.inputWord.length === 0) {
         ElNotification({
           title: '提示',
@@ -53,15 +57,13 @@ export default {
       } else {
         getResult()
       }
-    }
+    }, 300, true)
     const getResult = async function () {
       try {
         NProgress.start()
-        const { data: res } = await axios.get('https://de-repeat.vercel.app/python', {
-          params: {
-            query: state.inputWord,
-            mode: state.mode
-          }
+        const { data: res } = await axios.post('/api/v3', {
+          query: state.inputWord,
+          mode: state.mode
         })
         if (res.status_code === 1) {
           state.endResult = res.data

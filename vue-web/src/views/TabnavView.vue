@@ -3,7 +3,7 @@
  * @Date: 2022-03-31 11:54:44
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-04-01 14:17:43
+ * @LastEditTime: 2022-04-01 14:31:04
  * @FilePath: \vue-web\src\views\TabnavView.vue
 -->
 <template>
@@ -29,7 +29,7 @@ export default {
     const router = useRouter()
     const route = useRoute()
     const state = reactive({
-      tabRouter: 'free',
+      tabRouter: 'home',
       currentYear: new Date().getFullYear()
     })
     const tabRouterChange = function (name) {

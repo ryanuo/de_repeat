@@ -3,7 +3,7 @@
  * @Date: 2022-03-30 18:30:18
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-03-31 12:18:09
+ * @LastEditTime: 2022-04-01 14:31:19
  * @FilePath: \vue-web\src\router\index.js
  */
 import { createRouter, createWebHashHistory } from 'vue-router'
@@ -12,7 +12,7 @@ const routes = [
   {
     path: '/',
     component: () => import('@/views/TabnavView.vue'),
-    redirect: 'free',
+    redirect: 'home',
     children: [
       {
         path: '/home',
