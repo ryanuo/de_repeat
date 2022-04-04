@@ -3,13 +3,13 @@
  * @Date: 2022-03-31 11:30:09
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-04-01 15:04:21
+ * @LastEditTime: 2022-04-01 18:19:45
  * @FilePath: \vue-web\src\views\FreeView.vue
 -->
 <template>
   <div class>
     <div>
-      <el-radio v-model="mode" label="simple" border>简单</el-radio>
+      <el-radio v-model="mode" label="simple" border>初级</el-radio>
       <el-radio v-model="mode" label="middle" border>中等(推荐)</el-radio>
       <el-radio v-model="mode" label="high" border>高级</el-radio>
     </div>

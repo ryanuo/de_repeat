@@ -3,13 +3,13 @@
  * @Date: 2022-03-30 18:40:11
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-04-01 14:37:56
+ * @LastEditTime: 2022-04-04 15:25:22
  * @FilePath: \vue-web\src\views\HomeView.vue
 -->
 <template>
   <div :ref="homeRef" class="home-wrap">
     <div>
-      <el-radio v-model="mode" label="simple" border>简单</el-radio>
+      <el-radio v-model="mode" label="simple" border>初级</el-radio>
       <el-radio v-model="mode" label="middle" border>中等(推荐)</el-radio>
       <el-radio v-model="mode" label="high" border>高级</el-radio>
     </div>
@@ -68,6 +68,35 @@
       <SigninSvg v-else @click="isLoginedVisible = true" />
     </div>
   </div>
+  <div class="el-drawer-w">
+    <el-drawer v-model="drawerT" title="使用方法" :direction="direction" :before-close="handleClose">
+      <h6>1.使用原理</h6>
+      <span class="content-left">利用百度翻译通用API在不通语言间转换, 由于不通语言语序不通, 转换后可有效降重.</span>
+      <h6>2.使用步骤</h6>
+      <span class="content-left">
+        ①提供两种模式建议
+        <em>注册版</em>
+      </span>
+      <span class="content-left">
+        ②
+        <a href="https://api.fanyi.baidu.com/api/trans/product/prodinfo" target="_blank">注册</a>百度翻译api
+      </span>
+      <span class="content-left">
+        ③选择
+        <a href="https://api.fanyi.baidu.com/api/trans/product/apichoose" target="_blank">开通</a>通用型翻译
+      </span>
+      <span class="content-left">
+        ③
+        <a href="https://api.fanyi.baidu.com/manage/developer" target="_blank">查询</a>appid和secret
+      </span>
+      <span class="content-left">
+        ④
+        <a href="https://m.mr90.top/de_repeat/#/home" target="_blank">注册版页面</a>填入appid和秘钥
+      </span>
+      <h6>3.隐私保护</h6>
+      <span class="content-left">注：所有查询过的信息，以及账号密码，仅个人可知。</span>
+    </el-drawer>
+  </div>
 </template>
 
 <script>
@@ -103,7 +132,9 @@ export default {
       secret: '',
       inputWord: '',
       tempResult: '',
+      direction: 'ltr',
       endResult: '',
+      drawerT: false,
       transList: {
         simple: ['zh en', 'en de', 'de zh'],
         middle: ['zh en', 'en de', 'de jp', 'jp pt', 'pt zh'],
@@ -181,13 +212,27 @@ export default {
         })
       } else {
         NProgress.start()
-        queen(state.inputWord)
+        try {
+          queen(state.inputWord)
+        } catch (error) {
+          ElNotification({
+            title: '提示',
+            position: 'bottom-right',
+            message: '账户密码有误，点击左上角退出，重新输入',
+            type: 'error'
+          })
+        }
       }
     }, 500, true)
 
     // 点击复制
     const onCopy = debounceMerge(function () {
-      toClipboard(state.endResult)
+      toClipboard(state.endResult).then(res => {
+        ElMessage({
+          message: '已将内容复制到剪切板',
+          type: 'success'
+        })
+      })
       console.log(1)
     }, 500, true)
     // 登录
@@ -222,8 +267,8 @@ export default {
       const W = document.body.offsetWidth
       if (W <= 440) {
         state.PageWidth = '80%'
-      } else if (W > 414 && W < 900) {
-        state.PageWidth = '60%'
+      } else if (W > 440 && W < 900) {
+        state.PageWidth = '70%'
       } else {
         state.PageWidth = '30%'
       }
@@ -243,6 +288,10 @@ export default {
           type: 'success'
         })
       }
+    }
+    const remindClick = function () {
+      state.drawerT = true
+      // location.href = 'https://api.fanyi.baidu.com/api/trans/product/apichoose'
     }
     onMounted(() => {
       const token = localStorage.getItem('token')
@@ -268,9 +317,6 @@ export default {
     onUnmounted(() => {
       window.removeEventListener('resize', debounceMerge(judgeWidth, 300, true))
     })
-    const remindClick = function () {
-      location.href = 'https://api.fanyi.baidu.com/api/trans/product/apichoose'
-    }
     return {
       ...toRefs(state),
       createApiParams,
@@ -315,5 +361,17 @@ export default {
 .home-wrap {
   width: 100%;
   height: 100%;
+}
+
+.el-drawer-w {
+  text-align: left;
+  h6 {
+    font-weight: 550;
+  }
+  .content-left {
+    display: block;
+    margin: 30px 0;
+    line-height: 20px;
+  }
 }
 </style>

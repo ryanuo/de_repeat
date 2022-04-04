@@ -156,10 +156,15 @@ em,
     justify-content: center;
     margin-top: 80px;
     padding: 0 100px;
+
     @media screen and (max-width: 640px) {
         flex-direction: column;
         padding: 4px;
         margin-top: 30px;
+
+        .el-drawer.ltr.open {
+            width: 60%;
+        }
     }
 
     // @media screen and (min-width: 768px) {}
@@ -172,6 +177,11 @@ em,
     }
 }
 
+@media screen and (max-width: 640px) {
+    .el-drawer.ltr.open {
+        width: 60% !important;
+    }
+}
 
 .copy- {
     position: relative;
@@ -183,6 +193,11 @@ em,
         height: 25px;
         right: 10px;
         cursor: pointer;
+
+        &:hover {
+            width: 26px;
+            height: 26px;
+        }
     }
 }
 
@@ -203,6 +218,7 @@ em,
     height: 100vh;
     position: relative;
     overflow: hidden;
+
     .startS {
         position: absolute;
         bottom: 20px;
@@ -224,7 +240,7 @@ em,
     }
 }
 
-.lay-out{
+.lay-out {
     position: absolute;
     right: 20px;
     top: 20px;
