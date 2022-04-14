@@ -3,7 +3,7 @@
  * @Date: 2022-03-30 18:40:11
  * @LastEditors: harry
  * @Github: https://github.com/rr210
- * @LastEditTime: 2022-04-04 15:25:22
+ * @LastEditTime: 2022-04-14 19:34:50
  * @FilePath: \vue-web\src\views\HomeView.vue
 -->
 <template>
@@ -26,12 +26,7 @@
       </div>
     </div>
     <div class="startS" @click="starSwitch">开始转换</div>
-    <el-dialog
-      v-model="isLoginedVisible"
-      :title="lwTitle"
-      :width="PageWidth"
-      :before-close="handleClose"
-    >
+    <el-dialog v-model="isLoginedVisible" :title="lwTitle" :width="PageWidth" :before-close="handleClose">
       <div class="remind-w">
         <remind-view @click="remindClick" />
       </div>
@@ -45,13 +40,7 @@
         </el-input>
       </div>
       <div class="secret-input">
-        <el-input
-          v-model="secret"
-          clearable
-          type="password"
-          class="w-50 m-2"
-          placeholder="请填写secret,获取方式点击感叹号"
-        >
+        <el-input v-model="secret" clearable type="password" class="w-50 m-2" placeholder="请填写secret,获取方式点击感叹号">
           <template #prefix>
             <el-icon class="el-input__icon">
               <Key />
@@ -82,8 +71,8 @@
         <a href="https://api.fanyi.baidu.com/api/trans/product/prodinfo" target="_blank">注册</a>百度翻译api
       </span>
       <span class="content-left">
-        ③选择
-        <a href="https://api.fanyi.baidu.com/api/trans/product/apichoose" target="_blank">开通</a>通用型翻译
+        ③
+        <a href="https://api.fanyi.baidu.com/api/trans/product/apichoose" target="_blank">选择开通</a>通用型翻译
       </span>
       <span class="content-left">
         ③
@@ -178,18 +167,29 @@ export default {
       return res
     }
     const queen = function () {
-      state.tempResult = state.inputWord;
+      state.tempResult = state.inputWord.replace(/\s*/g, '');
       (async () => {
         for (let i = 0; i < state.transList[state.mode].length; i++) {
           const lang = state.transList[state.mode][i].split(' ')
           const res = await translate(state.tempResult, lang[0], lang[1])
           console.log(res)
-          state.tempResult = res.trans_result[0].dst
-          // console.log('result', dst)
-          if (i === state.transList[state.mode].length - 1) {
-            state.endResult = state.tempResult
+          if (res.error_code !== '52003') {
+            state.tempResult = res.trans_result[0].dst
+            if (i === state.transList[state.mode].length - 1) {
+              state.endResult = state.tempResult
+              NProgress.done()
+            }
+          } else {
+            ElNotification({
+              title: '提示',
+              position: 'top-right',
+              message: '右上角退出后重新检查appid和secret是否正确；如果正确检查是否开启通用高级版',
+              type: 'error'
+            })
             NProgress.done()
+            return
           }
+          // console.log('result', dst)
         }
       })()
     }
@@ -213,12 +213,12 @@ export default {
       } else {
         NProgress.start()
         try {
-          queen(state.inputWord)
+          queen()
         } catch (error) {
           ElNotification({
             title: '提示',
             position: 'bottom-right',
-            message: '账户密码有误，点击左上角退出，重新输入',
+            message: '右上角退出后重新检查appid和secret是否正确；如果正确检查是否开启通用高级版',
             type: 'error'
           })
         }
@@ -344,6 +344,7 @@ export default {
 
 .btn-wrap {
   padding: 40px 0 0 0;
+
   .el-button {
     width: 140px;
   }
@@ -358,6 +359,7 @@ export default {
   animation: tada 1s linear infinite;
   cursor: pointer;
 }
+
 .home-wrap {
   width: 100%;
   height: 100%;
@@ -365,9 +367,11 @@ export default {
 
 .el-drawer-w {
   text-align: left;
+
   h6 {
     font-weight: 550;
   }
+
   .content-left {
     display: block;
     margin: 30px 0;
